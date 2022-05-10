@@ -1,0 +1,62 @@
+service: ${self:custom.service}
+
+frameworkVersion: "3"
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  service: python-serverless-service-template
+  # pythonRequirements:
+  #   dockerizePip: true
+  dynamodb:
+    stages:
+      - local
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+    seed:
+      domain:
+        sources:
+          - table: ${self:custom.service}-local-styles-table
+            sources: [./src/serverless/plugins/localDynamoDB/seed.json]
+
+plugins:
+  - serverless-python-requirements
+  - serverless-dynamodb-local
+  - serverless-offline
+provider:
+  stage: local
+  name: aws
+  runtime: python3.9
+  region: eu-central-1
+  lambdaHashingVersion: 20200924
+  httpApi:
+    cors: true
+  apiGateway:
+    minimumCompressionSize: 1024
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    STYLES_TABLE: ${self:custom.service}-${self:custom.stage}-styles-table
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource:
+            - arn:aws:dynamodb:*:*:table/${self:custom.service}-${self:custom.stage}-styles-table
+
+functions:
+  getUserStyles:
+    handler: src/handler/style_handler.get_user_styles
+    events:
+      - http:
+          method: get
+          path: user/{id}/styles
+
+resources:
+  - ${file(src/serverless/resources/styles-table.yml)}

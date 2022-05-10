@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "local": "serverless dynamodb install && serverless offline start --stage local"
+  },
+  "devDependencies": {
+    "serverless": "^3.16.0",
+    "serverless-dynamodb-local": "^0.2.40",
+    "serverless-offline": "^8.7.0",
+    "serverless-python-requirements": "^5.4.0"
+  }
+}
