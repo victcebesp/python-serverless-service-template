@@ -4,7 +4,7 @@ frameworkVersion: "3"
 
 custom:
   stage: ${opt:stage, self:provider.stage}
-  service: python-serverless-service-template
+  service: python-serverless-template
   # pythonRequirements:
   #   dockerizePip: true
   dynamodb:
